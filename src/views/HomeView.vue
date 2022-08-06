@@ -29,6 +29,13 @@
         重置
       </button>
     </div>
+    <div class="mt-5 flex justify-center">
+      <textarea
+        v-model="keyboard"
+        class="rounded-md resize-none border-2 text-center"
+        placeholder="虛擬鍵盤呼出器"
+      ></textarea>
+    </div>
   </div>
 </template>
 
@@ -41,7 +48,16 @@ export default {
       isPaused: false,
       mouseEnabled: false,
     },
+    keyboard: "",
   }),
+  watch: {
+    keyboard() {
+      const requestAnimationFrame = window.requestAnimationFrame;
+      requestAnimationFrame(() => {
+        this.keyboard = "";
+      });
+    },
+  },
   computed: {
     emulatorEventMethods() {
       return [
