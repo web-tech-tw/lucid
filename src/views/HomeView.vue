@@ -29,7 +29,7 @@
         重置
       </button>
     </div>
-    <div class="mt-5 flex justify-center">
+    <div class="mt-5 px-3 w-full flex justify-center">
       <textarea
         v-model="keyboard"
         class="rounded-md resize-none border-2 text-center"
@@ -51,7 +51,8 @@ export default {
     keyboard: "",
   }),
   watch: {
-    keyboard() {
+    keyboard(e) {
+      this.machineSendKeyboardText(e);
       const requestAnimationFrame = window.requestAnimationFrame;
       requestAnimationFrame(() => {
         this.keyboard = "";
@@ -107,6 +108,9 @@ export default {
       for (const e of this.emulatorEventMethods) {
         machine.add_listener(e.name, e.method);
       }
+    },
+    machineSendKeyboardText(text) {
+      this.emulator.keyboard_send_text(text);
     },
     machinePowerPause(machine) {
       if (!this.emulatorExtendedInfo.isPaused) {
