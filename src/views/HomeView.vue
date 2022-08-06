@@ -1,8 +1,24 @@
 <template>
-  <div class="bg-black h-screen" @click="documentHandleClickBox">
-    <div ref="screenContainer">
-      <div id="screen"></div>
-      <canvas id="vga"></canvas>
+  <div>
+    <div
+      class="bg-black min-h-screen overflow-hidden"
+      @click="documentHandleClickBox"
+    >
+      <div ref="screenContainer">
+        <div id="screen"></div>
+        <canvas id="vga"></canvas>
+      </div>
+    </div>
+    <div class="mt-5 px-3 w-full flex justify-between">
+      <button class="w-16" @click="documentHandleClickButtonPause">
+        {{ emulatorExtendedInfo.isPaused ? "Resume" : "Pause" }}
+      </button>
+      <button class="w-28" @click="documentHandleClickButtonFullScreen">
+        Full Screen
+      </button>
+      <button class="w-16" @click="documentHandleClickButtonReset">
+        Reset
+      </button>
     </div>
   </div>
 </template>
