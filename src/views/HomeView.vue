@@ -6,18 +6,18 @@
     >
       <div ref="screenContainer">
         <div id="screen"></div>
-        <canvas id="vga"></canvas>
+        <canvas id="vga" class="mx-auto"></canvas>
       </div>
     </div>
     <div class="mt-5 px-3 w-full flex justify-between">
       <button class="w-16" @click="documentHandleClickButtonPause">
-        {{ emulatorExtendedInfo.isPaused ? "Resume" : "Pause" }}
+        {{ emulatorExtendedInfo.isPaused ? "恢復" : "暫停" }}
       </button>
       <button class="w-28" @click="documentHandleClickButtonFullScreen">
-        Full Screen
+        進入全螢幕
       </button>
       <button class="w-16" @click="documentHandleClickButtonReset">
-        Reset
+        重置
       </button>
     </div>
   </div>
