@@ -10,13 +10,22 @@
       </div>
     </div>
     <div class="mt-5 px-3 w-full flex justify-between">
-      <button class="w-16" @click="documentHandleClickButtonPause">
+      <button
+        class="w-16 text-base font-medium text-gray-600 hover:text-gray-500"
+        @click="documentHandleClickButtonPause"
+      >
         {{ emulatorExtendedInfo.isPaused ? "恢復" : "暫停" }}
       </button>
-      <button class="w-28" @click="documentHandleClickButtonFullScreen">
+      <button
+        class="w-28 text-base font-medium text-gray-600 hover:text-gray-500"
+        @click="documentHandleClickButtonFullScreen"
+      >
         進入全螢幕
       </button>
-      <button class="w-16" @click="documentHandleClickButtonReset">
+      <button
+        class="w-16 text-base font-medium text-gray-600 hover:text-gray-500"
+        @click="documentHandleClickButtonReset"
+      >
         重置
       </button>
     </div>
