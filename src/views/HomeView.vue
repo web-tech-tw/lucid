@@ -1,5 +1,5 @@
 <template>
-  <div class="bg-black h-screen">
+  <div class="bg-black h-screen" @click="documentHandleClickBox">
     <div ref="screenContainer">
       <div id="screen"></div>
       <canvas id="vga"></canvas>
@@ -12,8 +12,29 @@ export default {
   name: "HomeView",
   data: () => ({
     emulator: null,
-    emulatorExtendedInfo: {},
+    emulatorExtendedInfo: {
+      isPaused: false,
+      mouseEnabled: false,
+    },
   }),
+  computed: {
+    emulatorEventMethods() {
+      return [
+        {
+          name: "mouse-enable",
+          method: (isEnabled) => {
+            this.emulatorExtendedInfo.mouseEnabled = isEnabled;
+          },
+        },
+        {
+          name: "emulator-stopped",
+          method: () => {
+            this.documentRequestExitFullScreen();
+          },
+        },
+      ];
+    },
+  },
   methods: {
     machineBoot() {
       // Define Config
@@ -41,9 +62,79 @@ export default {
       // Return Machine
       return this.emulator;
     },
+    machineSetupEventListener(machine) {
+      for (const e of this.emulatorEventMethods) {
+        machine.add_listener(e.name, e.method);
+      }
+    },
+    machinePowerPause(machine) {
+      if (!this.emulatorExtendedInfo.isPaused) {
+        machine.stop();
+        this.emulatorExtendedInfo.isPaused = true;
+      } else {
+        machine.run();
+        this.emulatorExtendedInfo.isPaused = false;
+      }
+    },
+    machinePowerReset(machine) {
+      machine.restart();
+    },
+    documentLockMouse() {
+      const body = document.body;
+      const method =
+        body.requestPointerLock ||
+        body.mozRequestPointerLock ||
+        body.webkitRequestPointerLock ||
+        body.msRequestPointerLock;
+      if (method) {
+        method.call(body);
+      } else {
+        console.warn("The browser is not support requestPointerLock");
+      }
+    },
+    documentRequestFullScreen() {
+      const element = this.$refs.screenContainer;
+      const method =
+        element.requestFullscreen ||
+        element.mozRequestFullScreen ||
+        element.webkitRequestFullscreen ||
+        element.msRequestFullscreen;
+      if (method) {
+        method.call(element);
+      } else {
+        console.warn("The browser is not support requestFullscreen");
+      }
+    },
+    documentRequestExitFullScreen() {
+      const method =
+        document.exitFullscreen ||
+        document.mozCancelFullScreen ||
+        document.webkitExitFullscreen ||
+        document.msExitFullscreen;
+      if (method) {
+        method.call(document);
+      } else {
+        console.warn("The browser is not support exitFullscreen");
+      }
+    },
+    documentHandleClickBox() {
+      if (this.emulatorExtendedInfo.mouseEnabled) {
+        this.documentLockMouse();
+      }
+    },
+    documentHandleClickButtonPause() {
+      this.machinePowerPause(this.emulator);
+    },
+    documentHandleClickButtonReset() {
+      this.machinePowerReset(this.emulator);
+    },
+    documentHandleClickButtonFullScreen() {
+      this.documentRequestFullScreen();
+    },
   },
   mounted() {
-    this.machineBoot();
+    const machine = this.machineBoot();
+    this.machineSetupEventListener(machine);
   },
 };
 </script>
