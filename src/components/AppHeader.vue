@@ -48,7 +48,7 @@
                   focus:outline-none
                   focus:ring-2
                   focus:ring-offset-2
-                  focus:ring-indigo-500
+                  focus:ring-emerald-500
                 "
                 type="button"
                 @click="openMenu(item.status)"
@@ -162,7 +162,7 @@
               focus:outline-none
               focus:ring-2
               focus:ring-inset
-              focus:ring-indigo-500
+              focus:ring-emerald-500
             "
             type="button"
             @click="menu_collapse.mobile_menu = true"
@@ -235,7 +235,7 @@
                   focus:outline-none
                   focus:ring-2
                   focus:ring-inset
-                  focus:ring-indigo-500
+                  focus:ring-emerald-500
                 "
                 type="button"
               >
@@ -277,7 +277,7 @@
                       focus:outline-none
                       focus:ring-2
                       focus:ring-offset-2
-                      focus:ring-indigo-500
+                      focus:ring-emerald-500
                       w-full
                     "
                     type="button"
