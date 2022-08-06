@@ -188,8 +188,8 @@ export default {
   name: 'AppHeader',
   data: () => ({
     title: {
-      short: "template.inte",
-      long: "template.inte - 前端 Web 通用模板"
+      short: "lucid.inte",
+      long: "lucid.inte - 前端 Web 通用模板"
     },
     menu_collapse: {
       mobile_menu: false,
@@ -207,10 +207,10 @@ export default {
           status: "template",
           items: [
             {
-              name: "template.inte",
+              name: "lucid.inte",
               description: "前端 Web 通用模板",
               icon: require("@/assets/images/icons/star.svg"),
-              action: () => window.open("https://github.com/web-tech-tw/template.inte")
+              action: () => window.open("https://github.com/web-tech-tw/lucid.inte")
             },
             {
               name: "template.recv",
