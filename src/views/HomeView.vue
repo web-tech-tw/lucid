@@ -18,6 +18,7 @@ export default {
     machineBoot() {
       // Define Config
       const config = {
+        wasm_path: "./v86.wasm",
         memory_size: 256 * 1024 * 1024,
         vga_memory_size: 8 * 1024 * 1024,
         cdrom: {
