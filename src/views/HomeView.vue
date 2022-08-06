@@ -1,47 +1,63 @@
 <template>
-  <div>
-    <div class="mt-10 mx-auto py-10 max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-      <div class="sm:text-center lg:text-left">
-        <h1 class="text-4xl tracking-tight font-extrabold text-gray-900">
-          <span class="block xl:inline">這裡是</span>
-          <span class="block text-indigo-600 xl:inline">前端 Web 模板</span>
-        </h1>
-        <p class="mt-3 text-base text-gray-500">
-          Vue 2 + Tailwind CSS，為了快速發展專案而生，請自行修改內容。
-        </p>
-        <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-start">
-          <div class="mt-3 sm:mt-0 sm:ml-3">
-            <a href="https://github.com/web-tech-tw/lucid.inte" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-700 bg-indigo-100 hover:bg-indigo-200 md:py-4 md:text-lg md:px-10">
-              lucid.inte GitHub
-            </a>
-          </div>
-        </div>
-      </div>
-    </div>
-    <div class="mt-10 mx-auto py-10 max-w-7xl px-4 sm:mt-12 sm:px-6 md:mt-16 lg:mt-20 lg:px-8 xl:mt-28">
-      <div class="sm:text-center lg:text-right">
-        <h1 class="text-4xl tracking-tight font-extrabold text-gray-900">
-          <span class="block xl:inline">你是</span>
-          <span class="block text-indigo-600 xl:inline">後端</span>
-          <span class="block xl:inline">工程師嗎？</span>
-        </h1>
-        <p class="mt-3 text-base text-gray-500">
-          你走錯地方了，下方連結才是後端 API 模板。
-        </p>
-        <div class="mt-5 sm:mt-8 sm:flex sm:justify-center lg:justify-end">
-          <div class="rounded-md shadow">
-            <a href="https://github.com/web-tech-tw/template.recv" class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10">
-              template.recv GitHub
-            </a>
-          </div>
-        </div>
-      </div>
+  <div class="bg-black h-screen">
+    <div ref="screenContainer">
+      <div id="screen"></div>
+      <canvas id="vga"></canvas>
     </div>
   </div>
 </template>
 
 <script>
 export default {
-  name: 'HomeView',
-}
+  name: "HomeView",
+  data: () => ({
+    emulator: null,
+    emulatorExtendedInfo: {},
+    systemProfile: {
+      default: {
+        memory_size: 64 * 1024 * 1024,
+        vga_memory_size: 8 * 1024 * 1024,
+        cdrom: {
+          url: "./default/system.iso",
+          size: 23068672,
+        },
+      },
+    },
+  }),
+  computed: {
+    screenContainer() {
+      return this.$refs.screenContainer;
+    },
+  },
+  methods: {
+    machineBoot(baseProfile) {
+      const system = { ...baseProfile };
+      // Setup BIOS
+      system.bios = {
+        url: "./default/bios/seabios.bin",
+      };
+      system.vga_bios = {
+        url: "./default/bios/vgabios.bin",
+      };
+      // Setup Network Relay
+      system.network_relay_url = "wss://relay.widgetry.org/";
+      // Setup Screen Container
+      system.screen_container = this.screenContainer;
+      // Setup Auto Start
+      system.autostart = true;
+      // Mount Machine
+      const V86Starter = window.V86Starter;
+      this.emulator = new V86Starter(system);
+      // Return Machine
+      return this.emulator;
+    },
+  },
+  mounted() {
+    const params = new URLSearchParams(window.location.search);
+    const profileName = params.get("profile");
+    const baseProfile =
+      this.systemProfile[profileName] || this.systemProfile.default;
+    this.machineBoot(baseProfile);
+  },
+};
 </script>
