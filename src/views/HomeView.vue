@@ -13,51 +13,36 @@ export default {
   data: () => ({
     emulator: null,
     emulatorExtendedInfo: {},
-    systemProfile: {
-      default: {
-        memory_size: 64 * 1024 * 1024,
+  }),
+  methods: {
+    machineBoot() {
+      // Define Config
+      const config = {
+        memory_size: 256 * 1024 * 1024,
         vga_memory_size: 8 * 1024 * 1024,
         cdrom: {
-          url: "./default/system.iso",
-          size: 23068672,
+          url: "./machine/system.iso",
+          size: 45088768,
         },
-      },
-    },
-  }),
-  computed: {
-    screenContainer() {
-      return this.$refs.screenContainer;
-    },
-  },
-  methods: {
-    machineBoot(baseProfile) {
-      const system = { ...baseProfile };
-      // Setup BIOS
-      system.bios = {
-        url: "./default/bios/seabios.bin",
+        bios: {
+          url: "./machine/bios/seabios.bin",
+        },
+        vga_bios: {
+          url: "./machine/bios/vgabios.bin",
+        },
+        network_relay_url: "wss://relay.widgetry.org/",
+        screen_container: this.$refs.screenContainer,
+        autostart: true,
       };
-      system.vga_bios = {
-        url: "./default/bios/vgabios.bin",
-      };
-      // Setup Network Relay
-      system.network_relay_url = "wss://relay.widgetry.org/";
-      // Setup Screen Container
-      system.screen_container = this.screenContainer;
-      // Setup Auto Start
-      system.autostart = true;
       // Mount Machine
       const V86Starter = window.V86Starter;
-      this.emulator = new V86Starter(system);
+      this.emulator = new V86Starter(config);
       // Return Machine
       return this.emulator;
     },
   },
   mounted() {
-    const params = new URLSearchParams(window.location.search);
-    const profileName = params.get("profile");
-    const baseProfile =
-      this.systemProfile[profileName] || this.systemProfile.default;
-    this.machineBoot(baseProfile);
+    this.machineBoot();
   },
 };
 </script>
