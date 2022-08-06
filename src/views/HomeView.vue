@@ -69,7 +69,7 @@ export default {
         vga_memory_size: 8 * 1024 * 1024,
         cdrom: {
           url: "./machine/system.iso",
-          size: 56379392,
+          size: 36419584,
         },
         bios: {
           url: "./machine/bios/seabios.bin",
