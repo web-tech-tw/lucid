@@ -2,7 +2,7 @@
   <div>
     <div
       v-show="isShowProgressCircle"
-      @click="documentHandleClickButtonPower"
+      @click="documentHandleClickButtonInitPower"
       class="
         fixed
         inline-flex
@@ -64,9 +64,23 @@
       <div ref="screenContainer">
         <div id="screen"></div>
         <canvas id="vga" class="mx-auto"></canvas>
+        <div id="virtual-keyboard-caller-box">
+          <textarea
+            id="virtual-keyboard-caller"
+            ref="virtualKeyboardCaller"
+            v-model="virtualKeyboardBlackHole"
+            autocorrect="off"
+            autocapitalize="none"
+            spellcheck="false"
+            tabindex="0"
+          ></textarea>
+        </div>
       </div>
     </div>
-    <div class="mt-5 px-3 w-full flex justify-between" v-if="isEmulatorRunning">
+    <div
+      class="mt-5 px-3 w-full flex justify-between"
+      v-show="!isShowInitPowerButton"
+    >
       <button
         class="w-16 text-base font-medium text-gray-600 hover:text-gray-500"
         @click="documentHandleClickButtonPower"
@@ -87,17 +101,16 @@
       </button>
       <button
         class="w-28 text-base font-medium text-gray-600 hover:text-gray-500"
+        @click="documentHandleClickButtonCallSmartphoneVirtualKeyboard"
+      >
+        呼出虛擬鍵盤
+      </button>
+      <button
+        class="w-28 text-base font-medium text-gray-600 hover:text-gray-500"
         @click="documentHandleClickButtonFullScreen"
       >
         進入全螢幕
       </button>
-    </div>
-    <div class="mt-5 px-3 w-full flex justify-center">
-      <textarea
-        v-model="virtualKeyboardBlackHole"
-        class="rounded-md resize-none border-2 text-center"
-        placeholder="虛擬鍵盤呼出器"
-      ></textarea>
     </div>
   </div>
 </template>
@@ -108,8 +121,6 @@ export default {
   data: () => ({
     isPowerPressed: false,
     isDownloadCompleted: false,
-    isShowOptionsMenu: false,
-    isShowRestoreModal: false,
     progressTicks: -1,
     emulator: null,
     emulatorExtendedInfo: {
@@ -166,9 +177,6 @@ export default {
         (!this.isDownloadCompleted && !this.isPowerPressed) ||
         (this.isDownloadCompleted && !this.isEmulatorRunning)
       );
-    },
-    isShowModal() {
-      return this.isShowRestoreModal;
     },
     progressPercentage() {
       const progressValue = this.progressTicks < 1 ? this.progressTicks : 1;
@@ -426,6 +434,10 @@ export default {
         this.documentLockMouse();
       }
     },
+    documentHandleClickButtonInitPower() {
+      if (this.isPowerPressed) return;
+      this.machinePowerBoot(this.emulator);
+    },
     documentHandleClickButtonPower() {
       this.machinePowerBoot(this.emulator);
     },
@@ -438,37 +450,8 @@ export default {
     documentHandleClickButtonFullScreen() {
       this.documentRequestFullScreen();
     },
-    documentHandleClickButtonOptions() {
-      this.isShowOptionsMenu = !this.isShowOptionsMenu;
-    },
-    documentHandleClickButtonOptionsCallSmartphoneVirtualKeyboard() {
+    documentHandleClickButtonCallSmartphoneVirtualKeyboard() {
       this.$refs.virtualKeyboardCaller.focus();
-      this.isShowOptionsMenu = false;
-    },
-    documentHandleClickButtonOptionsRestore() {
-      if (!this.emulatorExtendedInfo.isPaused) {
-        this.machinePowerPause(this.emulator);
-      }
-      this.isShowRestoreModal = true;
-      this.isShowOptionsMenu = false;
-    },
-    documentHandleClickButtonOptionsSave() {
-      this.machineStateSave(this.emulator);
-      this.isShowOptionsMenu = false;
-    },
-    documentHandleClickButtonRestoreCancel() {
-      if (this.emulatorExtendedInfo.isPaused) {
-        this.machinePowerPause(this.emulator);
-      }
-      this.restoreFile = null;
-      this.isShowRestoreModal = false;
-    },
-    documentHandleClickButtonRestoreImport() {
-      if (this.emulatorExtendedInfo.isPaused) {
-        this.machinePowerPause(this.emulator);
-      }
-      this.machineStateRestore(this.emulator, this.restoreFile);
-      this.isShowRestoreModal = false;
     },
   },
   created() {
@@ -491,3 +474,24 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+#virtual-keyboard-caller-box {
+  position: absolute;
+  top: 0;
+  z-index: 10;
+}
+
+#virtual-keyboard-caller {
+  width: 0;
+  height: 0;
+  resize: none;
+  position: absolute;
+  opacity: 0;
+  left: -9999em;
+  top: 0;
+  z-index: -10;
+  white-space: nowrap;
+  overflow: hidden;
+}
+</style>
