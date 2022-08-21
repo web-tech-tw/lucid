@@ -1,7 +1,8 @@
 <template>
   <div>
     <div
-      x-data="scrollProgress"
+      v-show="isShowProgressCircle"
+      @click="documentHandleClickButtonPower"
       class="
         fixed
         inline-flex
@@ -13,6 +14,8 @@
         right-12
         md:right-1/2
         2xl:right-2
+        bg-white
+        hover:cursor-pointer
       "
     >
       <svg class="w-20 h-20">
@@ -34,8 +37,8 @@
           r="30"
           cx="40"
           cy="40"
-          stroke-dasharray="188.49555921538757"
-          stroke-dashoffset="188.49555921538757"
+          :stroke-dasharray="progressCircleSvgValue.strokeDasharray"
+          :stroke-dashoffset="progressCircleSvgValue.strokeDashoffset"
         ></circle>
       </svg>
       <svg
@@ -53,7 +56,9 @@
           d="M13 10V3L4 14h7v7l9-11h-7z"
         />
       </svg>
-      <span v-else class="absolute text-xl text-blue-700"> 0% </span>
+      <span v-else class="absolute text-xl text-blue-700">
+        {{ progressPercentageString }}
+      </span>
     </div>
     <div class="bg-black h-96 overflow-hidden" @click="documentHandleClickBox">
       <div ref="screenContainer">
@@ -61,7 +66,7 @@
         <canvas id="vga" class="mx-auto"></canvas>
       </div>
     </div>
-    <div class="mt-5 px-3 w-full flex justify-between">
+    <div class="mt-5 px-3 w-full flex justify-between" v-if="isEmulatorRunning">
       <button
         class="w-16 text-base font-medium text-gray-600 hover:text-gray-500"
         @click="documentHandleClickButtonPower"
@@ -106,7 +111,6 @@ export default {
     isShowOptionsMenu: false,
     isShowRestoreModal: false,
     progressTicks: -1,
-    progressState: "",
     emulator: null,
     emulatorExtendedInfo: {
       isPaused: false,
@@ -154,8 +158,8 @@ export default {
     isInFullScreen() {
       return !!document.fullscreenElement;
     },
-    isShowProgressBar() {
-      return this.progressTicks >= 0;
+    isShowProgressCircle() {
+      return !this.isPowerPressed || this.progressTicks >= 0;
     },
     isShowInitPowerButton() {
       return (
@@ -174,9 +178,12 @@ export default {
       const value = this.progressPercentage;
       return `${value.toFixed(0)}%`;
     },
-    progressBarStyle() {
+    progressCircleSvgValue() {
+      const circumference = 30 * 2 * Math.PI;
       return {
-        width: this.progressPercentageString,
+        strokeDasharray: circumference,
+        strokeDashoffset:
+          circumference - (this.progressPercentage / 100) * circumference,
       };
     },
     powerPauseText() {
@@ -187,27 +194,6 @@ export default {
     },
     powerPowerText() {
       return this.isEmulatorRunning ? "Power OFF" : "Power ON";
-    },
-    operationBoxClass() {
-      return {
-        fade: true,
-        show: this.isEmulatorRunning,
-      };
-    },
-    optionsMenuClass() {
-      return {
-        "dropdown-menu": true,
-        "dropdown-menu-right": true,
-        "d-block": this.isShowOptionsMenu,
-      };
-    },
-    restoreModalClass() {
-      return {
-        modal: true,
-        fade: true,
-        show: this.isShowRestoreModal,
-        "d-block": this.isShowRestoreModal,
-      };
     },
     emulatorScreenInfo() {
       return this.emulator.v86.cpu.devices.vga.stats;
@@ -222,7 +208,7 @@ export default {
             if (e.file_name.endsWith(".wasm")) {
               const filenameRaw = e.file_name.split("/");
               const filename = filenameRaw[filenameRaw.length - 1];
-              this.progressState = `Fetching "${filename}" ...`;
+              this.lucidLog(`Fetching "${filename}" ...`);
               return;
             }
 
@@ -231,27 +217,24 @@ export default {
               e.loaded >= e.total - 2048
             ) {
               this.isDownloadCompleted = true;
-              this.progressState = "Download completed!";
+              this.lucidLog("Download completed!");
               if (!this.isPowerPressed) {
-                this.progressState += " Click power button to start.";
+                this.lucidLog("Click power button to start.");
               }
-              setTimeout(() => {
-                this.progressTicks = -1;
-                this.progressState = "";
-              }, 3000);
+              this.progressTicks = -1;
               return;
             }
 
             if (typeof e.file_index === "number" && e.file_count) {
-              this.progressState = `Downloading images (${e.file_index + 1}/${
-                e.file_count
-              }) ...`;
+              this.lucidLog(
+                `Downloading images (${e.file_index + 1}/${e.file_count}) ...`
+              );
             }
 
             if (e.total && typeof e.loaded === "number") {
               this.progressTicks = e.loaded / e.total;
             } else {
-              this.progressState += ".".repeat(this.progressTicks++ % 50);
+              this.lucidLog(`Progress: ${this.progressTicks++ % 50}`);
             }
           },
         },
@@ -294,6 +277,9 @@ export default {
     },
   },
   methods: {
+    lucidLog(message) {
+      console.log(`[Lucid] ${message}`);
+    },
     machineSetup(baseProfile) {
       const system = { ...baseProfile };
       // Setup WASM
