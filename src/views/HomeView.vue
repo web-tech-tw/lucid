@@ -100,6 +100,7 @@
         重置
       </button>
       <button
+        v-show="isTouchDevice"
         class="w-28 text-base font-medium text-gray-600 hover:text-gray-500"
         @click="documentHandleClickButtonCallSmartphoneVirtualKeyboard"
       >
@@ -121,6 +122,7 @@ export default {
   data: () => ({
     isPowerPressed: false,
     isDownloadCompleted: false,
+    isTouchDevice: false,
     progressTicks: -1,
     emulator: null,
     emulatorExtendedInfo: {
@@ -455,6 +457,10 @@ export default {
     },
   },
   created() {
+    this.isTouchDevice =
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0 ||
+      navigator.msMaxTouchPoints > 0;
     window.addEventListener("resize", this.documentHandleResizeScreen);
   },
   destroyed() {
