@@ -1,7 +1,7 @@
 <template>
   <footer class="mt-16 pb-16 text-sm leading-6">
     <div class="max-w-7xl mx-auto mt-11 divide-y divide-gray-200 px-4 sm:px-6 md:px-8">
-      「Lucid」是基於純網頁運行的 SliTaz Linux x86-compatible 虛擬電腦。
+      「Lucid」是基於純網頁運行的 SliTaz/xPUD Linux x86-compatible 虛擬電腦。
     </div>
     <div class="max-w-7xl mx-auto mt-5 divide-y divide-gray-200 px-4 sm:px-6 md:px-8 text-sky-700">
       <a class="mr-3" href="https://github.com/web-tech-tw/lucid.inte">網站原始碼</a>

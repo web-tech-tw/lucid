@@ -132,12 +132,20 @@ export default {
     restoreFile: null,
     virtualKeyboardBlackHole: " ",
     systemProfile: {
-      default: {
+      slitaz: {
         memory_size: 64 * 1024 * 1024,
         vga_memory_size: 8 * 1024 * 1024,
         cdrom: {
-          url: "./machine/system.iso",
-          size: 23068672,
+          url: "./machine/slitaz.iso",
+          size: 36419584,
+        },
+      },
+      xpud: {
+        memory_size: 512 * 1024 * 1024,
+        vga_memory_size: 32 * 1024 * 1024,
+        cdrom: {
+          url: "./machine/xpud.iso",
+          size: 66529280,
         },
       },
     },
@@ -423,10 +431,14 @@ export default {
         width: this.emulatorScreenInfo.res_x || 1,
         height: this.emulatorScreenInfo.res_y || 1,
       };
-      const widthScale = documentScreen.width / emulatorScreen.width;
-      const heightScale = documentScreen.height / emulatorScreen.height;
-      const scale = Math.min(widthScale, heightScale);
-      this.machineScreenSetScale(this.emulator, scale);
+      if (documentScreen.height > documentScreen.width) {
+        const widthScale = documentScreen.width / emulatorScreen.width;
+        const heightScale = documentScreen.height / emulatorScreen.height;
+        const scale = Math.min(widthScale, heightScale);
+        this.machineScreenSetScale(this.emulator, scale);
+      } else {
+        this.machineScreenSetScale(this.emulator, 1);
+      }
     },
     documentHandleChangeRestoreFile(e) {
       this.restoreFile = e.target.files[0];
@@ -469,9 +481,17 @@ export default {
   mounted() {
     this.documentHandleResizeScreen();
     const params = new URLSearchParams(window.location.search);
-    const profileName = params.get("profile");
-    const baseProfile =
-      this.systemProfile[profileName] || this.systemProfile.default;
+    const baseProfile = (() => {
+      const profileName = params.get("profile");
+      const defaultProfile = this.systemProfile.slitaz;
+      if (profileName) {
+        return this.systemProfile[profileName] || defaultProfile;
+      }
+      if (navigator.language === "zh-TW") {
+        return this.systemProfile.xpud || defaultProfile;
+      }
+      return defaultProfile;
+    })();
     if (params.get("network_relay_url")) {
       baseProfile.network_relay_url = params.get("network_relay_url");
     }
