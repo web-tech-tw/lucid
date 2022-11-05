@@ -1,6 +1,6 @@
 # lucid.inte
 
-基於純網頁運行的 [SliTaz Linux](https://www.slitaz.org) x86-compatible 虛擬電腦。[前端]
+基於純網頁運行的 [SliTaz](https://www.slitaz.org)/[xPUD](http://www.xpud.org) Linux x86-compatible 虛擬電腦。[前端]
 
 本專案修改自 [LinuxOnBrowser](http://github.com/supersonictw/lob)，為推廣 Linux 而生。
 
