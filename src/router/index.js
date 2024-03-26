@@ -1,23 +1,19 @@
-import Vue from 'vue';
-import VueRouter from 'vue-router';
-
-Vue.use(VueRouter);
+import { createRouter, createWebHashHistory } from "vue-router";
 
 const routes = [
   {
-    path: '/',
-    name: 'home',
-    component: () => import('@/views/HomeView.vue'),
+    path: "/",
+    component: () => import("../views/HomeView.vue"),
   },
   {
-    path: '*',
-    name: 'not-found',
-    component: () => import('@/views/NotFoundView.vue'),
-  }
+    path: "/:pathMatch(.*)*",
+    component: () => import("../views/NotFoundView.vue"),
+  },
 ];
 
-const router = new VueRouter({
-  routes
+const router = createRouter({
+  history: createWebHashHistory(),
+  routes,
 });
 
 export default router;

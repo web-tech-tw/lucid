@@ -6,12 +6,7 @@
   </div>
 </template>
 
-<script>
-import AppHeader from "@/components/AppHeader"
-import AppFooter from "@/components/AppFooter"
-
-export default {
-  name: 'App',
-  components: {AppHeader, AppFooter},
-}
+<script setup>
+import AppHeader from "./components/AppHeader.vue"
+import AppFooter from "./components/AppFooter.vue"
 </script>
