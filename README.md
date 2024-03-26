@@ -1,6 +1,8 @@
-# template.inte
+# lucid.inte
 
-前端 Web 通用模板
+基於純網頁運行的 [SliTaz](https://www.slitaz.org) Linux x86-compatible 虛擬電腦。[前端]
+
+本專案修改自 [LinuxOnBrowser](http://github.com/supersonictw/lob)，為推廣 Linux 而生。
 
 ## 專案設定
 
