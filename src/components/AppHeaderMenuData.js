@@ -1,5 +1,5 @@
-export const titleLong = 'lucid.inte - 前端 Web 通用模板';
-export const titleShort = 'lucid.inte';
+export const titleLong = 'lucid - 前端 Web 通用模板';
+export const titleShort = 'lucid';
 
 export const isSaraEnabled = true;
 
@@ -10,10 +10,10 @@ export const menuItems = [
     status: 'template',
     children: [
       {
-        name: 'lucid.inte',
+        name: 'lucid',
         description: '前端 Web 通用模板',
         icon: 'GlobeAltIcon',
-        onClick: () => window.open('https://github.com/web-tech-tw/lucid.inte')
+        onClick: () => window.open('https://github.com/web-tech-tw/lucid')
       },
       {
         name: 'template.recv',

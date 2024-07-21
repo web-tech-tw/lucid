@@ -1,4 +1,4 @@
-# lucid.inte
+# lucid
 
 基於純網頁運行的 [SliTaz](https://www.slitaz.org) Linux x86-compatible 虛擬電腦。[前端]
 
