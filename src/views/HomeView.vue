@@ -2,21 +2,8 @@
   <div>
     <div
       v-show="isShowProgressCircle"
+      class="fixed inline-flex items-center justify-center overflow-hidden rounded-full top-0 right-12 md:right-1/2 2xl:right-2 bg-white hover:cursor-pointer"
       @click="documentHandleClickButtonInitPower"
-      class="
-        fixed
-        inline-flex
-        items-center
-        justify-center
-        overflow-hidden
-        rounded-full
-        top-0
-        right-12
-        md:right-1/2
-        2xl:right-2
-        bg-white
-        hover:cursor-pointer
-      "
     >
       <svg class="w-20 h-20">
         <circle
@@ -27,7 +14,7 @@
           r="30"
           cx="40"
           cy="40"
-        ></circle>
+        />
         <circle
           class="text-blue-600"
           stroke-width="5"
@@ -39,7 +26,7 @@
           cy="40"
           :stroke-dasharray="progressCircleSvgValue.strokeDasharray"
           :stroke-dashoffset="progressCircleSvgValue.strokeDashoffset"
-        ></circle>
+        />
       </svg>
       <svg
         v-if="isShowInitPowerButton"
@@ -56,14 +43,23 @@
           d="M13 10V3L4 14h7v7l9-11h-7z"
         />
       </svg>
-      <span v-else class="absolute text-xl text-blue-700">
+      <span
+        v-else
+        class="absolute text-xl text-blue-700"
+      >
         {{ progressPercentageString }}
       </span>
     </div>
-    <div class="bg-black h-96 overflow-hidden" @click="documentHandleClickBox">
+    <div
+      class="bg-black h-96 overflow-hidden"
+      @click="documentHandleClickBox"
+    >
       <div ref="screenContainer">
-        <div id="screen"></div>
-        <canvas id="vga" class="mx-auto"></canvas>
+        <div id="screen" />
+        <canvas
+          id="vga"
+          class="mx-auto"
+        />
         <div id="virtual-keyboard-caller-box">
           <textarea
             id="virtual-keyboard-caller"
@@ -73,13 +69,13 @@
             autocapitalize="none"
             spellcheck="false"
             tabindex="0"
-          ></textarea>
+          />
         </div>
       </div>
     </div>
     <div
-      class="mt-5 px-3 w-full flex justify-between"
       v-show="!isShowInitPowerButton"
+      class="mt-5 px-3 w-full flex justify-between"
     >
       <button
         class="w-16 text-base font-medium text-gray-600 hover:text-gray-500"
@@ -150,27 +146,6 @@ export default {
       },
     },
   }),
-  watch: {
-    isDownloadCompleted(isCompleted) {
-      if (!isCompleted || !this.isPowerPressed) return;
-      setTimeout(() => {
-        this.machinePowerBoot(this.emulator);
-      }, 500);
-    },
-    virtualKeyboardBlackHole(newValue) {
-      if (newValue === " ") return;
-      if (newValue === "") {
-        const value = 0x00e; // Backspace
-        this.machineSendKeyboardCode(this.emulator, value);
-      } else {
-        const value = newValue.substring(1);
-        this.machineSendKeyboardText(this.emulator, value);
-      }
-      window.requestAnimationFrame(() => {
-        this.virtualKeyboardBlackHole = " ";
-      });
-    },
-  },
   computed: {
     isEmulatorRunning() {
       if (this.emulatorExtendedInfo.isPaused) return true;
@@ -293,6 +268,57 @@ export default {
         },
       ];
     },
+  },
+  watch: {
+    isDownloadCompleted(isCompleted) {
+      if (!isCompleted || !this.isPowerPressed) return;
+      setTimeout(() => {
+        this.machinePowerBoot(this.emulator);
+      }, 500);
+    },
+    virtualKeyboardBlackHole(newValue) {
+      if (newValue === " ") return;
+      if (newValue === "") {
+        const value = 0x00e; // Backspace
+        this.machineSendKeyboardCode(this.emulator, value);
+      } else {
+        const value = newValue.substring(1);
+        this.machineSendKeyboardText(this.emulator, value);
+      }
+      window.requestAnimationFrame(() => {
+        this.virtualKeyboardBlackHole = " ";
+      });
+    },
+  },
+  created() {
+    this.isTouchDevice =
+      "ontouchstart" in window ||
+      navigator.maxTouchPoints > 0 ||
+      navigator.msMaxTouchPoints > 0;
+    window.addEventListener("resize", this.documentHandleResizeScreen);
+  },
+  unmounted() {
+    window.removeEventListener("resize", this.documentHandleResizeScreen);
+  },
+  mounted() {
+    this.documentHandleResizeScreen();
+    const params = new URLSearchParams(window.location.search);
+    const baseProfile = (() => {
+      const profileName = params.get("profile");
+      const defaultProfile = this.systemProfile.slitaz;
+      if (profileName) {
+        return this.systemProfile[profileName] || defaultProfile;
+      }
+      if (navigator.language === "zh-TW") {
+        return this.systemProfile.xpud || defaultProfile;
+      }
+      return defaultProfile;
+    })();
+    if (params.get("network_relay_url")) {
+      baseProfile.network_relay_url = params.get("network_relay_url");
+    }
+    const machine = this.machineSetup(baseProfile);
+    this.machineSetupEventListener(machine);
   },
   methods: {
     lucidLog(message) {
@@ -467,36 +493,6 @@ export default {
     documentHandleClickButtonCallSmartphoneVirtualKeyboard() {
       this.$refs.virtualKeyboardCaller.focus();
     },
-  },
-  created() {
-    this.isTouchDevice =
-      "ontouchstart" in window ||
-      navigator.maxTouchPoints > 0 ||
-      navigator.msMaxTouchPoints > 0;
-    window.addEventListener("resize", this.documentHandleResizeScreen);
-  },
-  destroyed() {
-    window.removeEventListener("resize", this.documentHandleResizeScreen);
-  },
-  mounted() {
-    this.documentHandleResizeScreen();
-    const params = new URLSearchParams(window.location.search);
-    const baseProfile = (() => {
-      const profileName = params.get("profile");
-      const defaultProfile = this.systemProfile.slitaz;
-      if (profileName) {
-        return this.systemProfile[profileName] || defaultProfile;
-      }
-      if (navigator.language === "zh-TW") {
-        return this.systemProfile.xpud || defaultProfile;
-      }
-      return defaultProfile;
-    })();
-    if (params.get("network_relay_url")) {
-      baseProfile.network_relay_url = params.get("network_relay_url");
-    }
-    const machine = this.machineSetup(baseProfile);
-    this.machineSetupEventListener(machine);
   },
 };
 </script>
