@@ -1,35 +1,46 @@
 <template>
-    <app-header-normal-menu-item name="載入中..." v-if="loginState === null" />
-    <app-header-normal-menu-item name="登入" @click="handleClick" v-else-if="loginState === false" />
-    <app-header-normal-menu-item :name="nickname" @click="handleClick" v-else />
+  <app-header-normal-menu-item
+    v-if="profile === null"
+    name="登入"
+    @click="onClick"
+  />
+  <app-header-normal-menu-item
+    v-else
+    :name="nickname"
+    @click="onClick"
+  >
+    <template #prepend>
+      <img
+        :src="identicon"
+        :alt="nickname"
+        class="rounded-full w-8 h-8 mr-2"
+      >
+    </template>
+  </app-header-normal-menu-item>
 </template>
 
 <script setup>
-import { ref, computed } from "vue";
+import { computed } from "vue";
 
 import AppHeaderNormalMenuItem from "./AppHeaderNormalMenuItem.vue";
 
-import { useClient } from "../clients/sara.js";
+import { onClickSara } from "./AppHeaderMenuData.js";
 
-const saraInteHost = import.meta.env.VITE_SARA_INTE_HOST;
+import { useProfile } from "../plugins/profile.js";
 
-const client = useClient();
-
-const loginState = ref(null);
+const profile = useProfile();
 
 const nickname = computed(() => {
-    const { profile } = loginState.value;
-    return profile.nickname;
-})
-
-const handleClick = () => {
-    location.assign(saraInteHost);
-}
-
-client.get("users/me").json().then((result) => {
-    loginState.value = result;
-}).catch((error) => {
-    loginState.value = false;
-    console.warn(error.message);
+    const { nickname } = profile;
+    return nickname;
 });
+
+const identicon = computed(() => {
+    const {avatar_hash: avatarHash} = profile;
+    return `https://api.gravatar.com/avatar/${avatarHash}?d=identicon`;
+});
+
+const onClick = () => {
+  onClickSara(profile);
+};
 </script>
