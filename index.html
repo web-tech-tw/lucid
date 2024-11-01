@@ -4,10 +4,32 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>lucid</title>
+  <title>Lucid</title>
   <link rel="icon" href="/lucid/favicon.ico">
-  <script type="module" crossorigin src="/lucid/assets/index-25858b99.js"></script>
-  <link rel="stylesheet" href="/lucid/assets/index-3b6e34a9.css">
+  <style>
+    .js-required>div {
+      text-align: center;
+      font-family: sans-serif;
+      margin-top: 10px;
+      margin-bottom: 10px;
+    }
+
+    .js-required a {
+      text-decoration: none;
+      color: #007ace;
+    }
+
+    .js-required a:hover {
+      color: #005bcf;
+    }
+
+    .js-required .title {
+      font-size: 1em;
+      font-weight: bold;
+    }
+  </style>
+  <script type="module" crossorigin src="/lucid/assets/index-c38b067b.js"></script>
+  <link rel="stylesheet" href="/lucid/assets/index-e6e7f9d3.css">
 </head>
 
 <body>
@@ -15,7 +37,26 @@
   
   <script src="/lucid/libv86.js"></script>
   <noscript>
-    We're sorry but lucid doesn't work properly without JavaScript enabled. Please enable it to continue.
+    <div class="js-required">
+      <div class="title">
+        Ahoy! It seems that JavaScript is disabled in your browser.
+      </div>
+      <div>
+        The application mandates the use of JavaScript for proper functionality,
+        for rendering content and ensuring a seamless user experience.
+      </div>
+      <div>
+        Please enable JavaScript in your browser settings and refresh the page to continue.
+      </div>
+      <div>
+        Thank you!
+      </div>
+      <div>
+        &copy; <a href="https://web-tech.tw" target="_blank">
+          Taiwan Web Technology Promotion Organization
+        </a>
+      </div>
+    </div>
   </noscript>
 </body>
 
