@@ -2,7 +2,7 @@
   <div>
     <div
       v-show="isShowProgressCircle"
-      class="fixed inline-flex items-center justify-center overflow-hidden rounded-full top-0 right-12 md:right-1/2 2xl:right-2 bg-white hover:cursor-pointer"
+      class="fixed inline-flex items-center justify-center overflow-hidden rounded-full top-0 right-0 md:right-1/2 2xl:right-2 bg-white hover:cursor-pointer"
       @click="documentHandleClickButtonInitPower"
     >
       <svg class="w-20 h-20">
