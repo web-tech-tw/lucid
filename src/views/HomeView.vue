@@ -80,7 +80,7 @@ const progressTicks = ref(-1);
 const screenContainer = ref(null);
 const screenContainerHeight = ref(0);
 const virtualKeyboardCaller = ref(null);
-const virtualKeyboardBlackHole = ref(" ");
+const virtualKeyboardBlackHole = ref("@");
 
 const isPowerPressed = ref(false);
 const isDownloadCompleted = ref(false);
@@ -216,7 +216,10 @@ watch(isDownloadCompleted, (isCompleted) => {
 });
 
 watch(virtualKeyboardBlackHole, (newValue) => {
-  if (newValue === " ") return;
+  if (newValue === "@") {
+    return;
+  }
+
   if (newValue === "") {
     const value = 0x00e; // Backspace
     emulatorSendKeyboardCode(value);
@@ -224,8 +227,9 @@ watch(virtualKeyboardBlackHole, (newValue) => {
     const value = newValue.substring(1);
     emulatorSendKeyboardText(value);
   }
-  window.requestAnimationFrame(() => {
-    virtualKeyboardBlackHole.value = " ";
+
+  requestAnimationFrame(() => {
+    virtualKeyboardBlackHole.value = "@";
   });
 });
 
@@ -248,7 +252,6 @@ function currentEmulatorScreenState() {
     isGraphic = vgaState.graphical_mode;
     width = vgaState.screen_width || width;
     height = vgaState.screen_height || height;
-    console.log(vgaState, isGraphic, width, height);
   }
 
   return {isGraphic, width, height};
