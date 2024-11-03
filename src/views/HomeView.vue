@@ -1,76 +1,34 @@
 <template>
   <div>
+    <power-button
+      class="fixed top-3 right-0 md:right-1/2 2xl:right-2"
+      :is-pressed="isPowerPressed"
+      :is-running="isEmulatorRunning"
+      :is-download-completed="isDownloadCompleted"
+      :progress-ticks="progressTicks"
+      @power-on="emulatorPowerBoot"
+    />
     <div
-      v-show="isShowProgressCircle"
-      class="fixed inline-flex items-center justify-center overflow-hidden rounded-full top-3 right-0 md:right-1/2 2xl:right-2 bg-white hover:cursor-pointer"
-      @click="onClickButtonInitPower"
-    >
-      <svg class="w-20 h-20">
-        <circle
-          class="text-gray-300"
-          stroke-width="5"
-          stroke="currentColor"
-          fill="transparent"
-          r="30"
-          cx="40"
-          cy="40"
-        />
-        <circle
-          class="text-blue-600"
-          stroke-width="5"
-          stroke-linecap="round"
-          stroke="currentColor"
-          fill="transparent"
-          r="30"
-          cx="40"
-          cy="40"
-          :stroke-dasharray="progressCircleSvgValue.strokeDasharray"
-          :stroke-dashoffset="progressCircleSvgValue.strokeDashoffset"
-        />
-      </svg>
-      <svg
-        v-if="isShowInitPowerButton"
-        xmlns="http://www.w3.org/2000/svg"
-        class="h-6 w-6 absolute text-xl text-emerald-700"
-        fill="none"
-        viewBox="0 0 24 24"
-        stroke="currentColor"
-        stroke-width="2"
-      >
-        <path
-          stroke-linecap="round"
-          stroke-linejoin="round"
-          d="M13 10V3L4 14h7v7l9-11h-7z"
-        />
-      </svg>
-      <span
-        v-else
-        class="absolute text-xl text-blue-700"
-      >
-        {{ progressPercentageString }}
-      </span>
-    </div>
-    <div
-      class="bg-black h-96 overflow-hidden"
+      ref="screenContainer"
+      class="bg-black overflow-hidden"
+      :style="screenContainerStyle"
       @click="onClickBox"
     >
-      <div ref="screenContainer">
-        <div id="screen" />
-        <canvas
-          id="vga"
-          class="mx-auto"
+      <div id="screen" />
+      <canvas
+        id="vga"
+        class="mx-auto"
+      />
+      <div id="virtual-keyboard-caller-box">
+        <textarea
+          id="virtual-keyboard-caller"
+          ref="virtualKeyboardCaller"
+          v-model="virtualKeyboardBlackHole"
+          autocorrect="off"
+          autocapitalize="none"
+          spellcheck="false"
+          tabindex="0"
         />
-        <div id="virtual-keyboard-caller-box">
-          <textarea
-            id="virtual-keyboard-caller"
-            ref="virtualKeyboardCaller"
-            v-model="virtualKeyboardBlackHole"
-            autocorrect="off"
-            autocapitalize="none"
-            spellcheck="false"
-            tabindex="0"
-          />
-        </div>
       </div>
     </div>
     <div
@@ -79,32 +37,32 @@
     >
       <button
         class="w-16 text-base font-medium text-gray-600 hover:text-gray-500"
-        @click="onClickButtonPower"
+        @click="onClickPower"
       >
         電源
       </button>
       <button
         class="w-16 text-base font-medium text-gray-600 hover:text-gray-500"
-        @click="onClickButtonPause"
+        @click="onClickPause"
       >
         {{ emulatorExtendedInfo.isPaused ? "恢復" : "暫停" }}
       </button>
       <button
         class="w-16 text-base font-medium text-gray-600 hover:text-gray-500"
-        @click="onClickButtonReset"
+        @click="onClickReset"
       >
         重置
       </button>
       <button
         v-show="isTouchDevice"
         class="w-28 text-base font-medium text-gray-600 hover:text-gray-500"
-        @click="onClickButtonCallSmartphoneVirtualKeyboard"
+        @click="onClickCallSmartphoneVirtualKeyboard"
       >
         呼出虛擬鍵盤
       </button>
       <button
         class="w-28 text-base font-medium text-gray-600 hover:text-gray-500"
-        @click="onClickButtonFullScreen"
+        @click="onClickFullScreen"
       >
         進入全螢幕
       </button>
@@ -113,23 +71,25 @@
 </template>
 
 <script setup>
-import { ref, computed, watch, onMounted, onUnmounted, h } from 'vue';
+import { ref, computed, watch, onMounted, onUnmounted } from 'vue';
+
+import PowerButton from '../components/PowerButton.vue';
+
+const progressTicks = ref(-1);
 
 const screenContainer = ref(null);
+const screenContainerHeight = ref(0);
 const virtualKeyboardCaller = ref(null);
+const virtualKeyboardBlackHole = ref(" ");
 
 const isPowerPressed = ref(false);
 const isDownloadCompleted = ref(false);
-const progressTicks = ref(-1);
 
 const emulator = ref(null);
 const emulatorExtendedInfo = ref({
   isPaused: false,
   mouseEnabled: false,
 });
-
-const restoreFile = ref(null);
-const virtualKeyboardBlackHole = ref(" ");
 
 const isTouchDevice =
     "ontouchstart" in window ||
@@ -156,10 +116,6 @@ const isInFullScreen = computed(
   () => !!document.fullscreenElement,
 );
 
-const isShowProgressCircle = computed(
-  () => !isPowerPressed.value || progressTicks.value >= 0,
-);
-
 const isShowInitPowerButton = computed(() => {
   return (
     (!isDownloadCompleted.value && !isPowerPressed.value) ||
@@ -167,25 +123,9 @@ const isShowInitPowerButton = computed(() => {
   );
 });
 
-const progressPercentage = computed(() => {
-  const progressValue = progressTicks.value < 1 ? progressTicks.value : 1;
-  return progressValue * 100;
-});
-
-const progressPercentageString = computed(() => {
-  const value = progressPercentage.value;
-  return `${value.toFixed(0)}%`;
-});
-
-const progressCircleSvgValue = computed(() => {
-  const strokeDasharray = 30 * 2 * Math.PI;
-  const strokeDashoffset = strokeDasharray - (progressPercentage.value / 100) * strokeDasharray
-  return {strokeDasharray, strokeDashoffset};
-});
-
-const emulatorScreenInfo = computed(() => {
-  if (!emulator.value) return {};
-  return emulator.value.v86.cpu.devices.vga.stats;
+const screenContainerStyle = computed(() => {
+  const height = screenContainerHeight.value;
+  return `width: 100%; height: ${height}px;`;
 });
 
 const emulatorEventMethods = [
@@ -246,20 +186,24 @@ const emulatorEventMethods = [
   {
     name: "screen-set-mode",
     method: () => {
-      onResizeScreen();
+      requestAnimationFrame(() => {
+        onResizeScreen();
+      });
     },
   },
   {
     name: "screen-set-size-graphical",
     method: () => {
-      onResizeScreen();
+      requestAnimationFrame(() => {
+        onResizeScreen();
+      });
     },
   },
   {
     name: "emulator-stopped",
     method: () => {
       if (!isInFullScreen.value) return;
-      onRequestExitFullScreen();
+      onExitFullscreen();
     },
   },
 ];
@@ -294,6 +238,22 @@ function currentEmulator() {
 }
 window.currentEmulator = currentEmulator;
 
+function currentEmulatorScreenState() {
+  let isGraphic = false;
+  let width = 640;
+  let height = 480;
+
+  const vgaState = emulator.value?.v86?.cpu?.devices?.vga;
+  if (isEmulatorRunning.value && vgaState) {
+    isGraphic = vgaState.graphical_mode;
+    width = vgaState.screen_width || width;
+    height = vgaState.screen_height || height;
+    console.log(vgaState, isGraphic, width, height);
+  }
+
+  return {isGraphic, width, height};
+}
+
 function emulatorProfile(params) {
   // Read Parameters
   const profileName = params.get("profile");
@@ -319,7 +279,7 @@ function emulatorProfile(params) {
 
 function emulatorSetup(profile) {
   // Setup Emulator
-  const {V86} = window;
+  const {V86Starter: V86} = window;
   emulator.value = new V86(profile);
 }
 
@@ -333,6 +293,7 @@ function emulatorAttachEvents() {
 function emulatorScreenSetScale(scale) {
   emulator.value.screen_set_scale(scale);
 }
+window.emulatorScreenSetScale = emulatorScreenSetScale;
 
 async function emulatorStateSave() {
   // Save the state of the emulator
@@ -395,18 +356,18 @@ function emulatorPowerReset() {
   emulator.value.restart();
 }
 
-function onLockMouse() {
-  const body = document.body;
-  const method =
-    body.requestPointerLock ||
-    body.mozRequestPointerLock ||
-    body.webkitRequestPointerLock ||
-    body.msRequestPointerLock;
-  if (method) {
-    method.call(body);
-  } else {
+function onRequestPointerLock() {
+  const element = document.body;
+  const requestPointerLock =
+    element.requestPointerLock ||
+    element.mozRequestPointerLock ||
+    element.webkitRequestPointerLock ||
+    element.msRequestPointerLock;
+  if (!requestPointerLock) {
     console.warn("The browser is not support requestPointerLock");
+    return;
   }
+  requestPointerLock.call(element);
 }
 
 function onRequestFullScreen() {
@@ -423,81 +384,73 @@ function onRequestFullScreen() {
   requestFullscreen.call(element);
 }
 
-function onRequestExitFullScreen() {
-  const method =
+function onExitFullscreen() {
+  const exitFullscreen =
     document.exitFullscreen ||
     document.mozCancelFullScreen ||
     document.webkitExitFullscreen ||
     document.msExitFullscreen;
-  if (method) {
-    method.call(document);
-  } else {
+  if (!exitFullscreen) {
     console.warn("The browser is not support exitFullscreen");
+    return;
   }
+  exitFullscreen.call(element);
 }
 
 function onResizeScreen() {
-  if (!isEmulatorRunning.value) return;
-  if (!emulatorScreenInfo.value.is_graphical) {
-    emulatorScreenSetScale(1);
+  if (!isEmulatorRunning.value) {
+    return;
   }
-  const documentScreen = {
-    width: screenContainer.value.clientWidth || 1,
-    height: screenContainer.value.clientHeight || 1,
-  };
-  const emulatorScreen = {
-    width: emulatorScreenInfo.value.res_x || 1,
-    height: emulatorScreenInfo.value.res_y || 1,
-  };
-  if (documentScreen.height > documentScreen.width) {
-    const widthScale = documentScreen.width / emulatorScreen.width;
-    const heightScale = documentScreen.height / emulatorScreen.height;
-    const scale = Math.min(widthScale, heightScale);
-    emulatorScreenSetScale(scale);
-    console.log(scale);
-  } else {
-    emulatorScreenSetScale(1);
-  }
-}
 
-function onChangeRestoreFile(e) {
-  restoreFile.value = e.target.files[0];
+  const emulatorScreenState = currentEmulatorScreenState();
+  if (!emulatorScreenState.isGraphic) {
+    emulatorScreenSetScale(1);
+    return;
+  }
+
+  const {clientWidth} = document.body;
+  const {
+    width: emulatorWidth,
+    height: emulatorHeight,
+  } = emulatorScreenState;
+  const widthScale = clientWidth / emulatorWidth;
+
+  const scale = widthScale > 1 ? 1 : widthScale;
+  emulatorScreenSetScale(scale);
+  screenContainerHeight.value = emulatorHeight * scale;
 }
 
 function onClickBox() {
   if (emulatorExtendedInfo.value.mouseEnabled) {
-    onLockMouse();
+    onRequestPointerLock();
   }
 }
 
-function onClickButtonInitPower() {
-  if (isPowerPressed.value) return;
+function onClickPower() {
   emulatorPowerBoot();
 }
 
-function onClickButtonPower() {
-  emulatorPowerBoot();
-}
-
-function onClickButtonPause() {
+function onClickPause() {
   emulatorPowerPause();
 }
 
-function onClickButtonReset() {
+function onClickReset() {
   emulatorPowerReset();
 }
 
-function onClickButtonFullScreen() {
+function onClickFullScreen() {
   onRequestFullScreen();
 }
 
-function onClickButtonCallSmartphoneVirtualKeyboard() {
+function onClickCallSmartphoneVirtualKeyboard() {
   virtualKeyboardCaller.value.focus();
 }
 
 onMounted(() => {
   window.addEventListener("resize", onResizeScreen);
-  onResizeScreen();
+
+  const emulatorScreenState = currentEmulatorScreenState();
+  screenContainerHeight.value = emulatorScreenState.height;
 
   const params = new URLSearchParams(window.location.search);
   const profile = emulatorProfile(params);
